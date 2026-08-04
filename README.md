@@ -1,10 +1,10 @@
-# Urban Infrastructure Memory System (UIMS) 🏛️🚧
+# Urban Infrastructure Memory System (UIMS)
 
 **Urban Infrastructure Memory System (UIMS)** is an integrated digital governance and GIS tracking platform designed to eliminate uncoordinated road-digging, track road quality lifecycles ("Road Passports"), streamline departmental project proposals, and empower citizens with real-time transparency on public infrastructure works.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 The project is structured into three independent, decoupled modules:
 
@@ -19,30 +19,30 @@ The project is structured into three independent, decoupled modules:
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 1. 🌍 Citizen Portal (`http://localhost:5174`)
+### 1. Citizen Portal (`http://localhost:5174`)
 - **Interactive Satellite Map:** Leaflet-powered GIS map layered with high-resolution **Esri World Imagery** satellite tiles for viewing active roadworks.
 - **Road Passport Quick View:** Click on any road pin to inspect real-time field status, responsible authority (PWD, Metro Water, NDMC, NHAI), and live status updates.
 - **Search & Filter:** Instant location filtering to focus and zoom the satellite camera directly onto specific construction zones.
 - **Live Trackers Hub:** Information aggregation from national networks including **Mappls / NHAI API Setu**, Google Maps traffic layers, **ROADS INDIA**, and State PWD systems.
 - **Government Policies:** Public transparency on standard municipal policies such as the **"Dig Once" Policy** and road opening guidelines.
 
-### 2. 🏢 Official Portal (`http://localhost:5173`)
+### 2. Official Portal (`http://localhost:5173`)
 - **Role-Based Access Control:** Distinct views and permissions for **System Administrators** and **Department Officials**.
 - **Department Dashboard:** Propose new road-cutting projects, submit timeline estimates, and prevent road excavation conflicts across departments.
 - **Admin Dashboard:** Cross-department approval workflows, road life cycle monitoring, and conflict detection analytics.
 - **Citizen Complaint Management:** Official ticketing pipeline to review and action citizen-reported road damage/potholes.
 - **Instant Registration & Login:** Direct authentication with role switching and local demo authentication mock fallback.
 
-### 3. ⚙️ Spring Boot Backend (`http://localhost:8080`)
+### 3. Spring Boot Backend (`http://localhost:8080`)
 - **RESTful API:** Endpoints for authentication (`/api/auth`), departments, road projects, conflict resolution, and complaints.
 - **Database:** JPA / Hibernate with MySQL integration (with automated table creation).
 - **Security:** Stateless authentication using JSON Web Tokens (JWT) and BCrypt password encryption.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Node.js** (v18+ recommended) & **npm**
@@ -51,7 +51,7 @@ The project is structured into three independent, decoupled modules:
 
 ---
 
-### ⚡ Quick Start (One-Click)
+### Quick Start (One-Click)
 
 On Windows, simply double-click the **`start-uims.bat`** file in the root folder, or execute it in PowerShell/CMD:
 
@@ -66,7 +66,7 @@ This will automatically launch three terminals in parallel:
 
 ---
 
-### 🛠️ Manual Step-by-Step Setup
+### Manual Step-by-Step Setup
 
 #### 1. Backend Setup
 ```bash
@@ -92,7 +92,7 @@ npm run dev -- --port 5174
 
 ---
 
-## 🔑 Demo & Test Credentials
+## Demo and Test Credentials
 
 For quick testing on the Official Portal (`http://localhost:5173/login`):
 
@@ -105,7 +105,7 @@ For quick testing on the Official Portal (`http://localhost:5173/login`):
 
 ---
 
-## 💻 Tech Stack
+## Tech Stack
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Lucide React
 - **Maps & GIS:** Leaflet, React-Leaflet, Esri World Imagery
@@ -115,5 +115,5 @@ For quick testing on the Official Portal (`http://localhost:5173/login`):
 
 ---
 
-## 📜 License
+## License
 Developed as part of the Software Engineering Project for Urban Infrastructure Management.
