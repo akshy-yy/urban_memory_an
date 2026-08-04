@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UIMS Sync Bridge (Citizen)</title>
+</head>
+<body>
+  <script>
+    window.addEventListener('message', (event) => {
+      try {
+        const data = event.data;
+        if (!data || !data.type) return;
+
+        if (data.type === 'SAVE_COMPLAINT' && data.complaint) {
+          const existingStr = localStorage.getItem('uims_complaints');
+          const existing = existingStr ? JSON.parse(existingStr) : [];
+          const filtered = existing.filter(c => c.id !== data.complaint.id);
+          const updated = [data.complaint, ...filtered];
+          localStorage.setItem('uims_complaints', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch (err) {
+        console.error('Error in UIMS Sync Bridge (5174):', err);
+      }
+    });
+  </script>
+</body>
+</html>
