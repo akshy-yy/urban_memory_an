@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-saffron: #FF9933;
+    --color-white: #FFFFFF;
+    --color-green: #138808;
+    --color-navy: #000080;
+    --color-bg: #F8F9FA;
+    --color-text: #333333;
+  }
+  
+  body {
+    @apply bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased;
+  }
+}
+
+@layer components {
+  .gov-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+  }
+  .gov-button-primary {
+    @apply bg-[var(--color-navy)] text-white px-4 py-2 rounded font-medium hover:bg-blue-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-navy)];
+  }
+  .gov-button-secondary {
+    @apply bg-white text-[var(--color-navy)] border border-[var(--color-navy)] px-4 py-2 rounded font-medium hover:bg-gray-50 transition-colors;
+  }
+}
