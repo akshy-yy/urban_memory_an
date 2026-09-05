@@ -20,4 +20,13 @@ public class ComplaintRequest {
 
     @NotNull
     private Double lng;
+
+    private Boolean isRoadRelated;
+    private Float roadRelevanceConfidence;
+    private Integer urgencyScore;
+    private String urgencyReasoning;
+    private String suggestedCategory;
+    private String mlModelVersion;
+    private String mlProcessedAt;
+    private String mlStatus;
 }

@@ -64,7 +64,7 @@ function App() {
             } />
             
             <Route path="department/project/new" element={
-              <ProtectedRoute allowedRoles={['ROLE_DEPARTMENT']}>
+              <ProtectedRoute allowedRoles={['ROLE_DEPARTMENT', 'ROLE_ADMIN']}>
                 <ProjectProposalForm />
               </ProtectedRoute>
             } />

@@ -3,6 +3,9 @@ echo ==================================================
 echo   Starting Urban Infrastructure Memory System
 echo ==================================================
 
+echo [0/3] Starting Docker Services (MySQL + ML-Service)...
+docker-compose up -d --build
+
 echo [1/3] Starting Spring Boot Backend API...
 start cmd.exe /k "cd backend && mvnw spring-boot:run"
 

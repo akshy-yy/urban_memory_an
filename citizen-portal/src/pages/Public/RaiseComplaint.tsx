@@ -1,7 +1,17 @@
 import { useState } from 'react';
-import { AlertTriangle, Send, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Send, ShieldCheck, Loader2, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { saveComplaintAndSync, type ComplaintItem } from '../../data/complaintsData';
+
+interface MLResult {
+  is_road_related: boolean;
+  road_relevance_confidence: number;
+  reason: string;
+  urgency_score: number | null;
+  urgency_reasoning: string | null;
+  suggested_category: string | null;
+  ml_status: string;
+}
 
 export default function RaiseComplaint() {
   const navigate = useNavigate();
@@ -17,11 +27,76 @@ export default function RaiseComplaint() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [mlResult, setMlResult] = useState<MLResult | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (!file) {
+      setFormData({ ...formData, image: null });
+      setMlResult(null);
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select a valid image file.');
+      return;
+    }
+
+    setFormData({ ...formData, image: file });
+    setUploadError(null);
+    setIsAnalyzing(true);
+    setMlResult(null);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/complaints/classify-image', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to classify image');
+      }
+
+      const result: MLResult = await response.json();
+      setMlResult(result);
+      if (result.is_road_related && result.urgency_score) {
+        setFormData(prev => ({ ...prev, urgency: result.urgency_score as number }));
+      }
+    } catch (err) {
+      console.error('Classification error:', err);
+      // Fallback
+      setMlResult({
+        is_road_related: true, // assume true to not block submission on error
+        road_relevance_confidence: 0,
+        reason: 'Service unavailable',
+        urgency_score: null,
+        urgency_reasoning: null,
+        suggested_category: null,
+        ml_status: 'pending_manual_review'
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, image: null });
+    setMlResult(null);
+    setUploadError(null);
+    // Reset file input
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newComplaint: ComplaintItem = {
+    const newComplaint: ComplaintItem & any = {
       id: Date.now(),
       aadhar: formData.aadhar,
       name: formData.name,
@@ -32,7 +107,8 @@ export default function RaiseComplaint() {
       urgency: formData.urgency,
       imagePreview: formData.image ? URL.createObjectURL(formData.image) : null,
       timestamp: new Date().toISOString(),
-      status: 'Pending'
+      status: 'Pending',
+      ...(mlResult || {})
     };
     
     // Save to local storage and sync to Official Portal (5173) in real-time
@@ -153,43 +229,73 @@ export default function RaiseComplaint() {
               ></textarea>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Upload Relevant Images (Optional)</label>
+            <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Upload Relevant Image (Optional)</label>
               <input 
+                id="image-upload"
                 type="file" 
                 accept="image/*"
-                className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl p-2 focus:ring-2 focus:ring-red-500 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
-                onChange={(e) => setFormData({...formData, image: e.target.files ? e.target.files[0] : null})}
+                className="w-full text-gray-900 dark:text-white rounded-xl focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                onChange={handleImageUpload}
               />
-              {formData.image && <p className="text-xs text-green-600 mt-2">Selected: {formData.image.name}</p>}
+              
+              {uploadError && (
+                <p className="text-sm text-red-500 mt-2 flex items-center gap-1"><AlertTriangle size={14} /> {uploadError}</p>
+              )}
+
+              {isAnalyzing && (
+                <div className="mt-4 flex items-center gap-3 text-blue-600 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <Loader2 size={18} className="animate-spin" />
+                  <span className="text-sm font-medium">Analyzing image for road relevance & urgency...</span>
+                </div>
+              )}
+
+              {mlResult && !isAnalyzing && (
+                <div className={`mt-4 p-4 rounded-lg border ${mlResult.is_road_related ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'}`}>
+                  {mlResult.is_road_related === false ? (
+                    <div>
+                      <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold mb-2">
+                        <AlertTriangle size={18} />
+                        <span>Image Verification Failed</span>
+                      </div>
+                      <p className="text-sm text-red-600 dark:text-red-300 mb-4">{mlResult.reason}</p>
+                      <div className="flex gap-4">
+                        <button type="button" onClick={removeImage} className="text-sm font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
+                          Remove Photo & Try Again
+                        </button>
+                        <button type="button" onClick={() => setMlResult({...mlResult, is_road_related: true, ml_status: 'pending_manual_review'})} className="text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors">
+                          Submit Anyway (Manual Review)
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-bold mb-2">
+                        <ShieldCheck size={18} />
+                        <span>Image Verified</span>
+                        {mlResult.ml_status === 'pending_manual_review' && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-medium">Manual Review Needed</span>}
+                      </div>
+                      {mlResult.suggested_category && (
+                        <p className="text-sm text-green-800 dark:text-green-300">
+                          <strong>Category:</strong> {mlResult.suggested_category}
+                        </p>
+                      )}
+                      {mlResult.urgency_score && (
+                        <p className="text-sm text-green-800 dark:text-green-300">
+                          <strong>Detected Urgency:</strong> {mlResult.urgency_score}/10 — {mlResult.urgency_reasoning}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50 p-6 rounded-2xl">
-              <label className="block flex justify-between items-end mb-4">
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Urgency Level</span>
-                <span className={`text-lg font-black ${formData.urgency >= 8 ? 'text-red-600' : formData.urgency >= 5 ? 'text-orange-500' : 'text-blue-500'}`}>
-                  {formData.urgency} / 10
-                </span>
-              </label>
-              
-              <input 
-                type="range" 
-                min="1" max="10" 
-                className="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500"
-                value={formData.urgency}
-                onChange={(e) => setFormData({...formData, urgency: parseInt(e.target.value)})}
-              />
-              
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
-                <span>1 - Minor Issue</span>
-                <span>5 - Moderate Hazard</span>
-                <span>10 - Critical Emergency</span>
-              </div>
-            </div>
 
             <button 
               type="submit"
-              className="w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              disabled={mlResult?.is_road_related === false || isAnalyzing}
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
               <Send size={20} />
               Submit Priority Complaint

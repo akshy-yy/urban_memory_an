@@ -162,32 +162,36 @@ export default function AdminDashboard() {
                     <th className="px-6 py-3">Details</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white">
                   {liveComplaints.map((c: any) => (
-                    <tr key={c.id} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                    <tr key={c.id} className={`border-b border-gray-200 transition-colors cursor-pointer ${
+                      c.urgency >= 8 ? 'hover:bg-red-50' :
+                      c.urgency >= 5 ? 'hover:bg-orange-50' :
+                      'hover:bg-blue-50'
+                    }`}>
                       <td className="px-6 py-4 font-black">
-                        <span className={`px-2.5 py-1 rounded-md text-xs font-black tracking-wider ${
-                          c.urgency >= 8 ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' :
-                          c.urgency >= 5 ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300' :
-                          'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300'
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-black tracking-wider whitespace-nowrap inline-block ${
+                          c.urgency >= 8 ? 'bg-red-100 text-red-900' :
+                          c.urgency >= 5 ? 'bg-orange-100 text-orange-900' :
+                          'bg-blue-100 text-blue-900'
                         }`}>
                           LEVEL {c.urgency}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      <td className="px-6 py-4 font-semibold text-black">
                         {c.name}
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 font-normal flex items-center gap-1 mt-0.5">
-                          <MapPin size={11} className="text-red-400" />
+                        <div className="text-[11px] text-gray-800 font-normal flex items-center gap-1 mt-0.5">
+                          <MapPin size={11} className="text-red-600" />
                           <span>{c.city || 'Bengaluru'}, {c.state || 'Karnataka'}</span>
                         </div>
-                        <div className="text-[10px] text-gray-400 font-normal flex items-center gap-1 mt-0.5">
+                        <div className="text-[10px] text-gray-700 font-normal flex items-center gap-1 mt-0.5">
                           <Clock size={10} />
                           <span>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-xs mb-0.5">{c.roadNumber}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2" title={c.details}>{c.details}</p>
+                        <p className="font-bold text-black text-xs mb-0.5">{c.roadNumber}</p>
+                        <p className="text-xs text-gray-800 line-clamp-2" title={c.details}>{c.details}</p>
                       </td>
                     </tr>
                   ))}

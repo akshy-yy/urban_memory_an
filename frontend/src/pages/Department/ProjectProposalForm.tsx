@@ -100,7 +100,7 @@ export default function ProjectProposalForm() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Work Type *</label>
                 <select 
-                  required className="w-full border border-gray-300 rounded p-2 focus:ring-[var(--color-navy)]"
+                  required className="w-full border border-gray-300 rounded p-2 focus:ring-[var(--color-navy)] text-black"
                   value={formData.workType} onChange={e => setFormData({...formData, workType: e.target.value})}
                 >
                   <option value="">Select Work Type</option>
@@ -115,7 +115,7 @@ export default function ProjectProposalForm() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Select Road *</label>
                 <select 
-                  required className="w-full border border-gray-300 rounded p-2 focus:ring-[var(--color-navy)]"
+                  required className="w-full border border-gray-300 rounded p-2 focus:ring-[var(--color-navy)] text-black"
                   value={formData.roadId} onChange={e => setFormData({...formData, roadId: e.target.value})}
                 >
                   <option value="">Select Road</option>

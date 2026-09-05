@@ -26,6 +26,9 @@ public class ComplaintService {
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
+    @Autowired
+    private com.uims.backend.repository.ComplaintImageRepository complaintImageRepository;
+
     public Complaint createComplaint(ComplaintRequest request, String email) {
         User citizen = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -43,7 +46,23 @@ public class ComplaintService {
         complaint.setLocation(location);
         complaint.setStatus("PENDING");
 
-        return complaintRepository.save(complaint);
+        Complaint savedComplaint = complaintRepository.save(complaint);
+
+        if (request.getMlStatus() != null) {
+            ComplaintImage image = new ComplaintImage();
+            image.setComplaint(savedComplaint);
+            image.setIsRoadRelated(request.getIsRoadRelated());
+            image.setRoadRelevanceConfidence(request.getRoadRelevanceConfidence());
+            image.setUrgencyScore(request.getUrgencyScore());
+            image.setUrgencyReasoning(request.getUrgencyReasoning());
+            image.setSuggestedCategory(request.getSuggestedCategory());
+            image.setMlModelVersion(request.getMlModelVersion());
+            image.setMlProcessedAt(request.getMlProcessedAt());
+            image.setMlStatus(request.getMlStatus());
+            complaintImageRepository.save(image);
+        }
+
+        return savedComplaint;
     }
 
     public List<Complaint> getComplaintsByCitizen(String email) {

@@ -24,6 +24,15 @@ public class ComplaintController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.uims.backend.service.RoadImageClassificationService classificationService;
+
+    @PostMapping("/classify-image")
+    // @PreAuthorize("hasRole('CITIZEN')") -- Depending on if citizen is logged in during classification
+    public ResponseEntity<java.util.Map<String, Object>> classifyImage(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        return ResponseEntity.ok(classificationService.classifyImage(file));
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<Complaint> createComplaint(@Valid @RequestBody ComplaintRequest request, Authentication authentication) {
