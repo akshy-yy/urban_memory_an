@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import RoadMap from '../../components/Map/RoadMap';
 import { PAN_INDIA_WORKS, type RoadWork } from '../../data/mockWorks';
-import { Search, MapPin, Building, Activity, X } from 'lucide-react';
+import { Search, MapPin, Building, Activity, X, Flame } from 'lucide-react';
+import axios from 'axios';
+import { type ClusterPoint } from '../../components/Map/HotspotLayer';
 
 const CITIES = ['All Cities', 'Bengaluru', 'New Delhi', 'Mumbai', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Jaipur', 'Ahmedabad', 'Kochi'];
 
@@ -10,6 +12,45 @@ export default function InteractiveHome() {
   const [selectedCity, setSelectedCity] = useState('All Cities');
   const [selectedRoad, setSelectedRoad] = useState<RoadWork | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+
+  // ── Hotspot state ──
+  const [showHotspots, setShowHotspots] = useState(false);
+  const [hotspotClusters, setHotspotClusters] = useState<ClusterPoint[]>([]);
+  const [hotspotLoading, setHotspotLoading] = useState(false);
+
+  /** Mock DBSCAN clusters for demo purposes — replaces backend data when unavailable */
+  const MOCK_CLUSTERS: ClusterPoint[] = [
+    { lat: 12.9716, lng: 77.5946, count: 14, avgUrgency: 8.2, label: 'Bengaluru Central — High density pothole & flooding cluster' },
+    { lat: 28.6139, lng: 77.2090, count: 9,  avgUrgency: 6.5, label: 'New Delhi CP Area — Road damage cluster' },
+    { lat: 19.0760, lng: 72.8777, count: 7,  avgUrgency: 5.8, label: 'Mumbai Andheri — Water leakage cluster' },
+    { lat: 17.3850, lng: 78.4867, count: 5,  avgUrgency: 7.1, label: 'Hyderabad HITEC City — Drainage failure cluster' },
+    { lat: 13.0827, lng: 80.2707, count: 11, avgUrgency: 9.0, label: 'Chennai Anna Nagar — Critical road damage' },
+    { lat: 22.5726, lng: 88.3639, count: 6,  avgUrgency: 4.3, label: 'Kolkata Park Street — Minor defects cluster' },
+    { lat: 18.5204, lng: 73.8567, count: 8,  avgUrgency: 6.9, label: 'Pune Kothrud — Broken footpath cluster' },
+  ];
+
+  const toggleHotspots = async () => {
+    if (showHotspots) {
+      // Turn off
+      setShowHotspots(false);
+      setHotspotClusters([]);
+      return;
+    }
+    // Turn on — fetch from backend, fallback to mock
+    setHotspotLoading(true);
+    try {
+      const res = await axios.get('http://localhost:8080/api/complaints/hotspots');
+      const data: ClusterPoint[] = Array.isArray(res.data) && res.data.length > 0
+        ? res.data
+        : MOCK_CLUSTERS;
+      setHotspotClusters(data);
+    } catch {
+      setHotspotClusters(MOCK_CLUSTERS);
+    } finally {
+      setHotspotLoading(false);
+      setShowHotspots(true);
+    }
+  };
 
   // Filter works by search query and city selection
   const filteredWorks = useMemo(() => {
@@ -76,6 +117,7 @@ export default function InteractiveHome() {
         selectedRoad={selectedRoad} 
         onSelectRoad={setSelectedRoad}
         filteredWorks={filteredWorks}
+        hotspotClusters={hotspotClusters}
       />
 
       {/* Floating Search & Projects Panel */}
@@ -92,6 +134,36 @@ export default function InteractiveHome() {
               {filteredWorks.length} active
             </span>
           </div>
+
+          {/* Hotspot Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleHotspots}
+            disabled={hotspotLoading}
+            className={`w-full mb-3 flex items-center justify-center gap-2 py-2 px-3 rounded-2xl font-bold text-xs transition-all border ${
+              showHotspots
+                ? 'bg-red-600 text-white border-red-700 shadow-lg shadow-red-600/30 hover:bg-red-700'
+                : 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-transparent shadow-md shadow-orange-500/25 hover:from-orange-600 hover:to-red-600'
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
+          >
+            {hotspotLoading ? (
+              <>
+                <span className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Fetching Hotspots…
+              </>
+            ) : showHotspots ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <Flame size={14} />
+                Hide Hotspots ({hotspotClusters.length} clusters active)
+              </>
+            ) : (
+              <>
+                <Flame size={14} />
+                View Complaint Hotspots
+              </>
+            )}
+          </button>
 
           <form onSubmit={handleSearchSubmit} className="relative">
             <input 

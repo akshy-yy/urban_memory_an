@@ -128,7 +128,8 @@ export default function ProjectProposalForm() {
         trafficIncrease: "15%",
         expectedDelay: "10 mins",
         conflicts: ["Potential overlap with BESCOM cable laying on adjacent street."],
-        recommendation: "Proceed with caution. Inform traffic police for localized diversions."
+        recommendation: "Proceed with caution. Inform traffic police for localized diversions.",
+        approval_receipt: `UIMS Decision Engine v2.4 | ${new Date().toISOString()}\n─────────────────────────────────────────────\nProject   : ${formData.title || 'New Roadwork Proposal'}\nDept      : Current Department\nDecision  : ⚠️ CONDITIONAL APPROVAL — MEDIUM SEVERITY\nReason    : Disruption score 45/100. One potential conflict identified with BESCOM infrastructure on adjacent corridor. Traffic increase of 15% projected during work window. Night-shift scheduling strongly recommended.\nSLA Risk  : MEDIUM (predicted delay ~10 min avg; monitor weekly)\nConflicts : 1 potential (BESCOM cable laying)\nReviewer  : Spatial Conflict Engine (DBSCAN r=0.05, min_samples=2)\n─────────────────────────────────────────────\nThis receipt is system-generated and legally binding per UIMS Act §12(b).`
       });
       setStep(2);
     } catch (err) {
@@ -491,6 +492,28 @@ export default function ProjectProposalForm() {
               </h3>
               <p className="text-sm text-gray-200">{report.recommendation}</p>
             </div>
+
+            {/* ── System Decision Receipt ── */}
+            {report.approval_receipt && (
+              <div className="mb-6 rounded-xl overflow-hidden border border-indigo-400/40 shadow-lg shadow-indigo-900/20">
+                {/* Receipt header */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-700 px-5 py-3.5 flex items-center gap-3">
+                  <span className="text-3xl leading-none">🤖</span>
+                  <div>
+                    <p className="text-white font-extrabold text-sm uppercase tracking-widest">System Decision Receipt</p>
+                    <p className="text-indigo-200 text-xs font-medium mt-0.5">
+                      AI-generated · Explainable decision log from UIMS Conflict Engine · Non-repudiable record
+                    </p>
+                  </div>
+                </div>
+                {/* Receipt body */}
+                <div className="bg-indigo-950/60 border-t border-indigo-700/40 p-4">
+                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-indigo-100 break-words">
+                    {report.approval_receipt}
+                  </pre>
+                </div>
+              </div>
+            )}
 
             <div className="border-t border-gray-700 pt-6 flex justify-end">
               <button type="button" onClick={() => setStep(1)} className="gov-button-secondary mr-4">Back to Edit</button>

@@ -6,6 +6,7 @@ import { PAN_INDIA_WORKS, type RoadWork } from '../../data/mockWorks';
 import { MapPin, Calendar, Clock, Building, AlertTriangle, Layers, CheckCircle2, TrendingDown } from 'lucide-react';
 import axios from 'axios';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+import HotspotLayer, { type ClusterPoint } from './HotspotLayer';
 
 // Fix for default marker icons in react-leaflet
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -71,9 +72,10 @@ interface RoadMapProps {
   selectedRoad?: RoadWork | null;
   onSelectRoad?: (road: RoadWork | null) => void;
   filteredWorks?: RoadWork[];
+  hotspotClusters?: ClusterPoint[];
 }
 
-export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filteredWorks = PAN_INDIA_WORKS }: RoadMapProps) {
+export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filteredWorks = PAN_INDIA_WORKS, hotspotClusters = [] }: RoadMapProps) {
   const [internalSelected, setInternalSelected] = useState<RoadWork | null>(null);
 
   const activeSelected = selectedRoad !== undefined ? selectedRoad : internalSelected;
@@ -94,6 +96,8 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
     }
   };
 
+  const showHotspots = hotspotClusters.length > 0;
+
   return (
     <div className="absolute inset-0 w-full h-full -z-10 bg-[#0f172a]">
       <MapContainer 
@@ -113,26 +117,31 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
         />
         
         <MapController searchCoords={searchCoords} selectedRoad={activeSelected} />
-        
-        {filteredWorks.map(proj => (
-          <Marker 
-            key={proj.id} 
-            position={[proj.lat, proj.lng]} 
-            icon={createStatusIcon(proj.status)}
-            eventHandlers={{ click: () => handleMarkerClick(proj) }}
-          >
-            <Popup className="custom-leaflet-popup">
-              <div className="p-1 font-sans">
-                <div className="text-[10px] font-bold uppercase text-blue-600 dark:text-blue-400">{proj.city}, {proj.state}</div>
-                <div className="font-bold text-sm text-gray-900 leading-snug">{proj.title}</div>
-                <div className="text-xs text-gray-500 mt-1">{proj.roadName}</div>
-                <div className="mt-2 text-[11px] font-semibold text-gray-700 bg-gray-100 p-1.5 rounded">
-                  Status: <span className="font-bold">{proj.status}</span> ({proj.dept})
+
+        {/* Render EITHER hotspot clusters OR individual road-work markers */}
+        {showHotspots ? (
+          <HotspotLayer clusters={hotspotClusters} />
+        ) : (
+          filteredWorks.map(proj => (
+            <Marker 
+              key={proj.id} 
+              position={[proj.lat, proj.lng]} 
+              icon={createStatusIcon(proj.status)}
+              eventHandlers={{ click: () => handleMarkerClick(proj) }}
+            >
+              <Popup className="custom-leaflet-popup">
+                <div className="p-1 font-sans">
+                  <div className="text-[10px] font-bold uppercase text-blue-600 dark:text-blue-400">{proj.city}, {proj.state}</div>
+                  <div className="font-bold text-sm text-gray-900 leading-snug">{proj.title}</div>
+                  <div className="text-xs text-gray-500 mt-1">{proj.roadName}</div>
+                  <div className="mt-2 text-[11px] font-semibold text-gray-700 bg-gray-100 p-1.5 rounded">
+                    Status: <span className="font-bold">{proj.status}</span> ({proj.dept})
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          ))
+        )}
       </MapContainer>
 
       {/* ROAD PASSPORT DRAWER */}

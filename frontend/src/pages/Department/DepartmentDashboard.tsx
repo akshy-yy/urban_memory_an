@@ -26,6 +26,7 @@ interface Project {
   description?: string;
   conflictDetails?: string;
   disruptionScoreAtApproval?: number;
+  approval_receipt?: string;
 }
 
 export default function DepartmentDashboard() {
@@ -53,7 +54,8 @@ export default function DepartmentDashboard() {
             endDate: "2026-08-15",
             status: "APPROVED",
             description: "Upgrading sub-surface 500mm water distribution line with smart flow pressure monitors.",
-            conflictDetails: "Deconflicted with BESCOM optical line overhaul."
+            conflictDetails: "Deconflicted with BESCOM optical line overhaul.",
+            approval_receipt: "UIMS Decision Engine v2.4 | 2026-08-01T09:14:33Z\n─────────────────────────────────────────────\nProject   : MG Road Pipeline Replacement\nDept      : BWSSB\nDecision  : ✅ APPROVED\nReason    : No spatial overlap detected within 50m buffer. BESCOM work window ends 2026-07-29 — 3-day clearance margin confirmed.\nSLA Risk  : LOW (predicted delay 4.2 days)\nConflicts : 0 active, 1 historical (resolved)\nReviewer  : Spatial Conflict Engine (DBSCAN r=0.05, min_samples=2)\n─────────────────────────────────────────────\nThis receipt is system-generated and legally binding per UIMS Act §12(b)."
           },
           {
             id: 2,
@@ -63,7 +65,8 @@ export default function DepartmentDashboard() {
             endDate: "2026-08-25",
             status: "PENDING_COORDINATION",
             description: "Installing micro-trench conduit for high-bandwidth municipal telemetry sensor network.",
-            conflictDetails: "Merged timeline with BBMP stormwater culvert paving."
+            conflictDetails: "Merged timeline with BBMP stormwater culvert paving.",
+            approval_receipt: "UIMS Decision Engine v2.4 | 2026-08-10T11:05:11Z\n─────────────────────────────────────────────\nProject   : Indiranagar Fiber Conduit Ducting\nDept      : BMRCL\nDecision  : ⏳ PENDING COORDINATION\nReason    : Overlap detected with BBMP culvert paving (overlap area: 120m, 100 Feet Rd). Merged timeline proposed — awaiting BBMP sign-off. Estimated 48h coordination window.\nSLA Risk  : MEDIUM (predicted delay 9.8 days if unresolved)\nConflicts : 1 active\nReviewer  : Spatial Conflict Engine (DBSCAN r=0.05, min_samples=2)\n─────────────────────────────────────────────\nThis receipt is system-generated and legally binding per UIMS Act §12(b)."
           },
           {
             id: 3,
@@ -73,7 +76,8 @@ export default function DepartmentDashboard() {
             endDate: "2026-08-20",
             status: "APPROVED",
             description: "Reinforced cement concrete box culvert construction to eliminate monsoon ponding.",
-            conflictDetails: "Zero road cut overlap detected."
+            conflictDetails: "Zero road cut overlap detected.",
+            approval_receipt: "UIMS Decision Engine v2.4 | 2026-08-05T07:59:47Z\n─────────────────────────────────────────────\nProject   : ORR Drainage Box Culvert\nDept      : BBMP\nDecision  : ✅ APPROVED\nReason    : Corridor analysis clear. No active projects within 100m. Night-shift window (22:00–05:00) recommended to minimise peak-hour impact.\nSLA Risk  : LOW (predicted delay 2.1 days)\nConflicts : 0\nReviewer  : Spatial Conflict Engine (DBSCAN r=0.05, min_samples=2)\n─────────────────────────────────────────────\nThis receipt is system-generated and legally binding per UIMS Act §12(b)."
           }
         ]);
       } finally {
@@ -318,6 +322,26 @@ export default function DepartmentDashboard() {
                 </p>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{selectedProject.conflictDetails || "Verified: No overlapping excavations scheduled by other municipal departments during this window."}</p>
               </div>
+
+              {/* ── System Decision Receipt ── */}
+              {selectedProject.approval_receipt && (
+                <div className="rounded-2xl overflow-hidden border border-indigo-200 dark:border-indigo-800/60 shadow-md">
+                  {/* Receipt header */}
+                  <div className="bg-gradient-to-r from-indigo-600 to-purple-700 px-4 py-3 flex items-center gap-2.5">
+                    <span className="text-2xl leading-none">🤖</span>
+                    <div>
+                      <p className="text-white font-extrabold text-xs uppercase tracking-widest">System Decision Receipt</p>
+                      <p className="text-indigo-200 text-[10px] font-medium">AI-generated — Explainable decision log from UIMS Conflict Engine</p>
+                    </div>
+                  </div>
+                  {/* Receipt body */}
+                  <div className="bg-indigo-50/60 dark:bg-indigo-950/30 p-3.5">
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-indigo-900 dark:text-indigo-200 break-words">
+                      {selectedProject.approval_receipt}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex justify-end">

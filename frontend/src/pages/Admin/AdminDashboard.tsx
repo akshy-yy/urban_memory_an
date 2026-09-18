@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { Activity, ShieldCheck, AlertCircle, Building2, MapPin, Clock } from 'lucide-react';
+import SlaLeagueTable from '../../components/SlaLeagueTable';
 import { getStoredComplaints } from '../../data/complaintsData';
 
 export default function AdminDashboard() {
@@ -237,6 +238,11 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+      </div>
+
+      {/* SLA League Table */}
+      <div className="mt-8">
+        <SlaLeagueTable token={token} />
       </div>
     </div>
   );

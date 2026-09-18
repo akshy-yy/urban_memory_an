@@ -63,6 +63,20 @@ public class Project {
     @Column(name = "disruption_score_at_approval")
     private Integer disruptionScoreAtApproval;
 
+    // ── SLA Watchdog fields ──────────────────────────────────────────
+    /** Set to NOW + 14 days when the project transitions to COMPLETED. */
+    @Column(name = "restoration_deadline")
+    private LocalDateTime restorationDeadline;
+
+    /** Flipped to true by the nightly watchdog when the deadline passes without sign-off. */
+    @Column(name = "sla_breached", nullable = false)
+    private Boolean slaBreached = false;
+
+    // ── Approval Explainer Receipt ───────────────────────────────────
+    /** Plain-English summary of why the project was approved or flagged. */
+    @Column(name = "approval_receipt", columnDefinition = "TEXT")
+    private String approvalReceipt;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

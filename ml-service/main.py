@@ -1,6 +1,10 @@
 import os
 import json
 from datetime import datetime, timezone
+from typing import Union
+import numpy as np
+import pandas as pd
+from sklearn.cluster import DBSCAN
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel, Field
 from google import genai
@@ -17,6 +21,26 @@ class ClassificationResponse(BaseModel):
     urgency_score: int | None = Field(None, description="Urgency score (1-10) if road related, else null.")
     urgency_reasoning: str | None = Field(None, description="Reasoning for the urgency score, else null.")
     suggested_category: str | None = Field(None, description="Suggested category like 'pothole', 'garbage/debris', 'waterlogging', 'open manhole', 'damaged footpath', 'excavation/digging', 'other', else null.")
+
+class ComplaintItem(BaseModel):
+    id: Union[int, str]
+    lat: float
+    lng: float
+    urgency_score: float
+    category: str
+
+class ClusterRequest(BaseModel):
+    complaints: list[ComplaintItem]
+
+class HotspotRecord(BaseModel):
+    cluster_id: int
+    report_count: int
+    average_urgency: float
+    category: str
+    center_lat: float
+    center_lng: float
+    complaint_ids: list[Union[int, str]]
+    summary: str
 
 @app.get("/health")
 def health_check():
@@ -90,3 +114,65 @@ async def classify_road_image(file: UploadFile = File(...)):
     except Exception as e:
         print(f"Error calling Gemini API: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the image.")
+
+@app.post("/cluster-complaints")
+def cluster_complaints(payload: Union[list[ComplaintItem], ClusterRequest]) -> list[HotspotRecord]:
+    if isinstance(payload, ClusterRequest):
+        complaints = payload.complaints
+    else:
+        complaints = payload
+
+    if not complaints:
+        return []
+
+    # Extract coordinates (lat, lng) in degrees
+    coords_deg = np.array([[c.lat, c.lng] for c in complaints])
+    # Convert degrees to radians for haversine distance metric
+    coords_rad = np.radians(coords_deg)
+
+    # 50 meters in radians (Earth radius ~ 6,371,000 meters)
+    EARTH_RADIUS_METERS = 6371000.0
+    eps_radians = 50.0 / EARTH_RADIUS_METERS
+
+    # DBSCAN with haversine metric
+    db = DBSCAN(eps=eps_radians, min_samples=1, metric="haversine")
+    labels = db.fit_predict(coords_rad)
+
+    # Group complaints by cluster label
+    cluster_groups: dict[int, list[ComplaintItem]] = {}
+    for label, complaint in zip(labels, complaints):
+        cluster_groups.setdefault(int(label), []).append(complaint)
+
+    hotspots: list[HotspotRecord] = []
+    for cluster_id, items in cluster_groups.items():
+        report_count = len(items)
+        avg_urgency = round(float(np.mean([c.urgency_score for c in items])), 2)
+        center_lat = round(float(np.mean([c.lat for c in items])), 6)
+        center_lng = round(float(np.mean([c.lng for c in items])), 6)
+
+        # Compute category distribution and select dominant category
+        cat_counts: dict[str, int] = {}
+        for c in items:
+            cat_counts[c.category] = cat_counts.get(c.category, 0) + 1
+        dominant_category = max(cat_counts, key=cat_counts.get)
+
+        complaint_ids = [c.id for c in items]
+        summary = f"Hotspot: {report_count} reports, avg urgency {avg_urgency}, category: {dominant_category}"
+
+        hotspots.append(
+            HotspotRecord(
+                cluster_id=cluster_id,
+                report_count=report_count,
+                average_urgency=avg_urgency,
+                category=dominant_category,
+                center_lat=center_lat,
+                center_lng=center_lng,
+                complaint_ids=complaint_ids,
+                summary=summary,
+            )
+        )
+
+    # Sort hotspots by report_count descending, then average_urgency descending
+    hotspots.sort(key=lambda h: (h.report_count, h.average_urgency), reverse=True)
+
+    return hotspots
