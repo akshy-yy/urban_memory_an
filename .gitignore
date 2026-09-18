@@ -38,3 +38,12 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Python bytecode and environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+*.egg-info/
