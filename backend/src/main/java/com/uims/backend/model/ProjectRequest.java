@@ -27,4 +27,8 @@ public class ProjectRequest {
 
     @NotNull
     private Integer laneClosurePercentage;
+
+    private String recommendedStartTime;
+    private String recommendedEndTime;
+    private Integer disruptionScoreAtApproval;
 }

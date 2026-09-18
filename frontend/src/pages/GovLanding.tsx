@@ -109,7 +109,7 @@ export default function GovLanding() {
           </h1>
 
           <p className="mt-4 text-base sm:text-xl text-gray-300 max-w-2xl font-normal leading-relaxed drop-shadow">
-            Eliminating repetitive road excavation through unified spatial memory, real-time cross-department synchronization, and AI conflict mitigation.
+            Eliminating repetitive road excavation through unified spatial memory, real-time cross-department synchronization, and automated conflict mitigation.
           </p>
 
           {/* Call to Actions */}

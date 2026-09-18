@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { AlertTriangle, Send, ShieldCheck, Loader2, Info } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, Loader2, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import indiaData from '../../data/indiaLocations.json';
 import { saveComplaintAndSync, type ComplaintItem } from '../../data/complaintsData';
 
 interface MLResult {
@@ -184,25 +185,32 @@ export default function RaiseComplaint() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">State</label>
-                <input 
-                  type="text" 
+                <select 
                   required
-                  placeholder="e.g. Karnataka"
                   className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl p-3 focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   value={formData.state}
-                  onChange={(e) => setFormData({...formData, state: e.target.value})}
-                />
+                  onChange={(e) => setFormData({...formData, state: e.target.value, city: ''})}
+                >
+                  <option value="">Select State</option>
+                  {indiaData.states.map((s: any) => (
+                    <option key={s.state} value={s.state}>{s.state}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">City</label>
-                <input 
-                  type="text" 
+                <select 
                   required
-                  placeholder="e.g. Bangalore"
+                  disabled={!formData.state}
                   className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl p-3 focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   value={formData.city}
                   onChange={(e) => setFormData({...formData, city: e.target.value})}
-                />
+                >
+                  <option value="">Select City</option>
+                  {formData.state && indiaData.states.find((s: any) => s.state === formData.state)?.districts.map((d: string) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Road Number / Name</label>

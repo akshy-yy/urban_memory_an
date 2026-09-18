@@ -7,6 +7,7 @@ import com.uims.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +58,14 @@ public class ProjectService {
         project.setLaneClosurePercentage(request.getLaneClosurePercentage());
         project.setImpactScore(report.getImpactScore());
         project.setImpactRecommendation(report.getRecommendation());
+
+        if (request.getRecommendedStartTime() != null) {
+            project.setRecommendedStartTime(LocalDateTime.parse(request.getRecommendedStartTime().replace(" ", "T")));
+        }
+        if (request.getRecommendedEndTime() != null) {
+            project.setRecommendedEndTime(LocalDateTime.parse(request.getRecommendedEndTime().replace(" ", "T")));
+        }
+        project.setDisruptionScoreAtApproval(request.getDisruptionScoreAtApproval());
         
         // If there are conflicts and severity is critical, we might set status to PENDING_APPROVAL
         project.setStatus(report.getSeverity().equals("CRITICAL") ? "PENDING_APPROVAL" : "APPROVED");
@@ -65,12 +74,16 @@ public class ProjectService {
     }
 
     private List<String> detectConflicts(ProjectRequest request) {
+        return detectConflicts(request.getRoadId(), request.getStartDate(), request.getEndDate(), request.getWorkType());
+    }
+
+    public List<String> detectConflicts(Long roadId, java.time.LocalDate startDate, java.time.LocalDate endDate, String workType) {
         List<String> conflicts = new ArrayList<>();
-        List<Project> existingProjects = projectRepository.findByRoadId(request.getRoadId());
+        List<Project> existingProjects = projectRepository.findByRoadId(roadId);
 
         for (Project p : existingProjects) {
             // Check spatio-temporal overlap (naive check for overlapping dates on the same road)
-            boolean dateOverlap = !(request.getEndDate().isBefore(p.getStartDate()) || request.getStartDate().isAfter(p.getEndDate()));
+            boolean dateOverlap = !(endDate.isBefore(p.getStartDate()) || startDate.isAfter(p.getEndDate()));
             
             if (dateOverlap && !p.getStatus().equals("COMPLETED") && !p.getStatus().equals("REJECTED")) {
                 conflicts.add(p.getDepartment().getName() + " already has '" + p.getTitle() + "' planned during this time.");
@@ -79,7 +92,7 @@ public class ProjectService {
             // Check recent resurfacing rule
             if ("Resurfacing".equalsIgnoreCase(p.getWorkType()) && p.getStatus().equals("COMPLETED")) {
                 // If it was completed within the last 6 months, and new work is excavation
-                if (p.getEndDate().plusMonths(6).isAfter(request.getStartDate()) && request.getWorkType().contains("Excavation")) {
+                if (p.getEndDate().plusMonths(6).isAfter(startDate) && (workType != null && workType.contains("Excavation"))) {
                     conflicts.add("Road was recently resurfaced on " + p.getEndDate() + ". Excavation is restricted for 6 months unless emergency.");
                 }
             }

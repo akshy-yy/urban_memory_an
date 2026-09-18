@@ -54,6 +54,15 @@ public class Project {
     @Column(name = "impact_recommendation", columnDefinition = "TEXT")
     private String impactRecommendation;
 
+    @Column(name = "recommended_start_time")
+    private LocalDateTime recommendedStartTime;
+
+    @Column(name = "recommended_end_time")
+    private LocalDateTime recommendedEndTime;
+
+    @Column(name = "disruption_score_at_approval")
+    private Integer disruptionScoreAtApproval;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { PAN_INDIA_WORKS, type RoadWork } from '../../data/mockWorks';
-import { MapPin, Calendar, Clock, AlertTriangle, Building, CheckCircle2, Layers } from 'lucide-react';
+import { MapPin, Calendar, Clock, Building, AlertTriangle, Layers, CheckCircle2, TrendingDown } from 'lucide-react';
+import axios from 'axios';
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
 // Fix for default marker icons in react-leaflet
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -214,6 +216,8 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
                 <p className="text-[10px] text-gray-400">Zero duplicate excavation guaranteed by UIMS spatial lock.</p>
               </div>
             </div>
+
+            <TrafficSparkline roadId={activeSelected.roadName} />
           </div>
         </div>
       )}
@@ -239,4 +243,40 @@ function MapController({ searchCoords, selectedRoad }: { searchCoords?: { lat: n
   }, [searchCoords, selectedRoad, map]);
 
   return null;
+}
+
+function TrafficSparkline({ roadId }: { roadId: string }) {
+  const [data, setData] = useState<any[]>([]);
+  
+  useEffect(() => {
+    // roadId here in mock dataset is string, map it to 1,2,3
+    let mappedId = "1";
+    if (roadId.includes("Brigade")) mappedId = "2";
+    if (roadId.includes("Ring")) mappedId = "3";
+    
+    axios.get(`http://localhost:8080/api/roadworks/traffic-forecast?segmentId=${mappedId}`)
+      .then(res => {
+        if (res.data.forecast) {
+          setData(res.data.forecast.slice(0, 24)); // next 24 hours
+        }
+      }).catch(() => {});
+  }, [roadId]);
+
+  if (data.length === 0) return null;
+
+  return (
+    <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-gray-100 dark:border-slate-700/60 mt-4">
+      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
+        <TrendingDown size={12} className="text-red-500" /> 24h Traffic Forecast
+      </p>
+      <div className="h-12 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <YAxis domain={[0, 100]} hide />
+            <Line type="basis" dataKey="predicted_congestion_pct" stroke="#ef4444" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
 }

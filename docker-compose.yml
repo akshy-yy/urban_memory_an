@@ -23,6 +23,13 @@ services:
       - "8000:8000"
     restart: unless-stopped
 
+  traffic-service:
+    build: ./traffic-service
+    container_name: uims-traffic-service
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+
 volumes:
   mysql_data:
 

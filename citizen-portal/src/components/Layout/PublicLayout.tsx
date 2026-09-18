@@ -42,6 +42,9 @@ export default function PublicLayout() {
               <Link to="/policies" className="text-gray-700 dark:text-gray-300 hover:text-[var(--color-navy)] dark:hover:text-blue-400 font-semibold flex items-center gap-1 transition-colors">
                 <Info size={16} /> Major Policies
               </Link>
+              <Link to="/traffic-insights" className="text-gray-700 dark:text-gray-300 hover:text-[var(--color-navy)] dark:hover:text-blue-400 font-semibold flex items-center gap-1 transition-colors">
+                <Activity size={16} /> Traffic Insights
+              </Link>
               <Link to="/raise-complaint" className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-full font-bold flex items-center gap-1 shadow-md transition-colors text-sm">
                 <AlertTriangle size={16} /> Raise Complaint
               </Link>

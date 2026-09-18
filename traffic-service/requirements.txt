@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+prophet
+pandas
+sqlalchemy
+pymysql
+apscheduler
+httpx
+python-dotenv

@@ -25,6 +25,7 @@ interface Project {
   status: string;
   description?: string;
   conflictDetails?: string;
+  disruptionScoreAtApproval?: number;
 }
 
 export default function DepartmentDashboard() {
@@ -272,6 +273,11 @@ export default function DepartmentDashboard() {
               <div>
                 <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">Spatial Project Audit</span>
                 <h3 className="font-extrabold text-xl text-gray-900 dark:text-white mt-0.5">{selectedProject.name}</h3>
+                {selectedProject.disruptionScoreAtApproval !== undefined && selectedProject.disruptionScoreAtApproval !== null && (
+                  <span className={`inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedProject.disruptionScoreAtApproval < 40 ? 'bg-green-100 text-green-700' : selectedProject.disruptionScoreAtApproval < 70 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    Scheduled during predicted {selectedProject.disruptionScoreAtApproval < 40 ? 'low' : selectedProject.disruptionScoreAtApproval < 70 ? 'medium' : 'high'} traffic (Score: {selectedProject.disruptionScoreAtApproval})
+                  </span>
+                )}
               </div>
               <button 
                 onClick={() => setSelectedProject(null)}
