@@ -2,17 +2,20 @@ spring:
   application:
     name: uims-backend
   datasource:
-    url: jdbc:mysql://localhost:3306/uims?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: uims_user
-    password: uims_password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:uims;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
 
 server:
   port: 8080

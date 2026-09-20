@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import pixelmatch from 'pixelmatch';
-import { AlertTriangle, CheckCircle2, Upload, ShieldAlert, Loader2 } from 'lucide-react';
 
 export default function RepairVerification() {
   const [beforeFile, setBeforeFile] = useState<File | null>(null);
@@ -121,7 +120,6 @@ export default function RepairVerification() {
               />
             ) : (
               <div className="flex flex-col items-center gap-2 text-gray-400">
-                <Upload size={28} />
                 <span className="text-sm">Upload Before Image</span>
               </div>
             )}
@@ -153,7 +151,6 @@ export default function RepairVerification() {
               />
             ) : (
               <div className="flex flex-col items-center gap-2 text-gray-400">
-                <Upload size={28} />
                 <span className="text-sm">Upload After Image</span>
               </div>
             )}
@@ -178,20 +175,12 @@ export default function RepairVerification() {
         disabled={verifying || !beforeFile || !afterFile}
         className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {verifying ? (
-          <>
-            <Loader2 size={18} className="animate-spin" />
-            Analysing…
-          </>
-        ) : (
-          'Verify Repair'
-        )}
+        {verifying ? 'Analysing…' : 'Verify Repair'}
       </button>
 
       {/* Error */}
       {error && (
         <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
-          <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -199,7 +188,6 @@ export default function RepairVerification() {
       {/* Fraud Alert */}
       {requiresManualReview && diffPercentage !== null && (
         <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 text-sm">
-          <ShieldAlert size={20} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div>
             <p className="font-semibold text-base mb-1">Fraud Alert: Images are identical</p>
             <p>
@@ -213,7 +201,6 @@ export default function RepairVerification() {
       {/* Pass result */}
       {diffPercentage !== null && !requiresManualReview && (
         <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm">
-          <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
           <span>
             Images differ by <strong>{diffPercentage}%</strong>. Repair appears legitimate.
           </span>

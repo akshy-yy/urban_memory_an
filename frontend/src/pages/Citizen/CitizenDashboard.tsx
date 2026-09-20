@@ -1,5 +1,4 @@
 import { useAuth } from '../../context/AuthContext';
-import { AlertCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function CitizenDashboard() {
@@ -13,7 +12,6 @@ export default function CitizenDashboard() {
           <p className="text-gray-600">Welcome back, {user?.name}</p>
         </div>
         <Link to="/citizen/complaint/new" className="gov-button-primary flex items-center gap-2">
-          <AlertCircle size={18} />
           Report New Issue
         </Link>
       </div>
@@ -22,7 +20,6 @@ export default function CitizenDashboard() {
         <div className="md:col-span-2">
           <div className="gov-card">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center gap-2">
-              <FileText className="text-[var(--color-navy)]" size={20} />
               <h2 className="font-bold text-lg text-[var(--color-navy)]">My Complaints</h2>
             </div>
             <div className="p-6">

@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import RoadMap from '../../components/Map/RoadMap';
 import { PAN_INDIA_WORKS, type RoadWork } from '../../data/mockWorks';
-import { Search, MapPin, Building, Activity, X, Flame } from 'lucide-react';
 import axios from 'axios';
 import { type ClusterPoint } from '../../components/Map/HotspotLayer';
 
@@ -124,13 +123,12 @@ export default function InteractiveHome() {
       <div className="absolute top-20 left-4 w-96 max-w-[calc(100vw-2rem)] flex flex-col gap-3 z-10 pointer-events-auto max-h-[calc(100vh-6.5rem)]">
         
         {/* Search Header Card */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-xl rounded-3xl p-4 border border-gray-200/80 dark:border-slate-800 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-extrabold text-base text-[var(--color-navy)] dark:text-blue-400 flex items-center gap-2">
-              <Search size={18} className="text-blue-500" /> 
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-lg rounded-xl p-4 border border-slate-200 dark:border-slate-800 transition-colors">
+          <div className="flex items-center justify-between mb-2.5">
+            <h2 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
               Find Infrastructure Work
             </h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
               {filteredWorks.length} active
             </span>
           </div>
@@ -140,10 +138,10 @@ export default function InteractiveHome() {
             type="button"
             onClick={toggleHotspots}
             disabled={hotspotLoading}
-            className={`w-full mb-3 flex items-center justify-center gap-2 py-2 px-3 rounded-2xl font-bold text-xs transition-all border ${
+            className={`w-full mb-3 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-semibold text-xs transition-colors border ${
               showHotspots
-                ? 'bg-red-600 text-white border-red-700 shadow-lg shadow-red-600/30 hover:bg-red-700'
-                : 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-transparent shadow-md shadow-orange-500/25 hover:from-orange-600 hover:to-red-600'
+                ? 'bg-red-600 text-white border-red-700 hover:bg-red-700 shadow-xs'
+                : 'bg-amber-600 text-white border-amber-700 hover:bg-amber-700 shadow-xs'
             } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
             {hotspotLoading ? (
@@ -154,12 +152,10 @@ export default function InteractiveHome() {
             ) : showHotspots ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                <Flame size={14} />
                 Hide Hotspots ({hotspotClusters.length} clusters active)
               </>
             ) : (
               <>
-                <Flame size={14} />
                 View Complaint Hotspots
               </>
             )}
@@ -169,7 +165,7 @@ export default function InteractiveHome() {
             <input 
               type="text" 
               placeholder="Search by city, road, or department..." 
-              className="w-full bg-gray-50 dark:bg-slate-800/90 border border-gray-300 dark:border-slate-700 rounded-2xl py-2.5 pl-3 pr-8 text-xs text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner" 
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg py-2 pl-3 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all" 
               value={searchQuery} 
               onChange={(e) => handleSearchChange(e.target.value)} 
             />
@@ -177,9 +173,9 @@ export default function InteractiveHome() {
               <button 
                 type="button"
                 onClick={() => { setSearchQuery(''); }}
-                className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                className="absolute right-2.5 top-2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
-                <X size={15} />
+                ✕
               </button>
             )}
           </form>
@@ -191,10 +187,10 @@ export default function InteractiveHome() {
                 key={city}
                 type="button"
                 onClick={() => handleCitySelect(city)}
-                className={`text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap transition-all ${
+                className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md whitespace-nowrap transition-colors ${
                   selectedCity === city
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                    : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700'
+                    ? 'bg-blue-900 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {city}
@@ -204,18 +200,17 @@ export default function InteractiveHome() {
         </div>
 
         {/* Live Works List Card */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-xl rounded-3xl border border-gray-200/80 dark:border-slate-800 flex flex-col overflow-hidden flex-grow transition-colors">
-          <div className="p-3.5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/50 flex justify-between items-center">
-            <h3 className="font-bold text-xs text-gray-800 dark:text-gray-200 flex items-center gap-2">
-              <Activity size={15} className="text-orange-500" />
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-lg rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden flex-grow transition-colors">
+          <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex justify-between items-center">
+            <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
               Pan-India Active Corridors
             </h3>
-            <span className="text-[10px] text-gray-400">Click card to fly map</span>
+            <span className="text-[10px] text-slate-400">Click card to fly map</span>
           </div>
 
-          <div className="overflow-y-auto p-3 space-y-2.5 max-h-[48vh] hide-scrollbar">
+          <div className="overflow-y-auto p-3 space-y-2 max-h-[48vh] hide-scrollbar">
             {filteredWorks.length === 0 ? (
-              <div className="text-center py-8 text-gray-400 text-xs">
+              <div className="text-center py-8 text-slate-400 text-xs">
                 No active road works matched "{searchQuery}".
               </div>
             ) : (
@@ -223,40 +218,39 @@ export default function InteractiveHome() {
                 <div 
                   key={work.id} 
                   onClick={() => handleCardClick(work)} 
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer group ${
+                  className={`p-3 rounded-lg border transition-all cursor-pointer group ${
                     selectedRoad?.id === work.id 
-                      ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 shadow-md' 
-                      : 'border-gray-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-800/40 hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-slate-800'
+                      ? 'border-blue-600 bg-blue-50/90 dark:bg-blue-950/60 shadow-xs' 
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="flex justify-between items-start mb-1 gap-2">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-blue-600 dark:text-blue-400">
-                      <MapPin size={11} className="text-red-500 flex-shrink-0" />
+                    <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-blue-800 dark:text-blue-400">
                       <span>{work.city} • {work.roadName}</span>
                     </div>
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase whitespace-nowrap ${
-                      work.status === 'Critical' ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' : 
-                      work.status === 'Completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' : 
-                      work.status === 'Planned' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300' :
-                      'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+                    <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase whitespace-nowrap ${
+                      work.status === 'Critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' : 
+                      work.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 
+                      work.status === 'Planned' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300' :
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'
                     }`}>
                       {work.status}
                     </span>
                   </div>
 
-                  <h4 className="font-bold text-xs text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                     {work.title}
                   </h4>
 
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
                     {work.details}
                   </p>
 
-                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-slate-700/60 text-[10px]">
-                    <span className="font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1">
-                      <Building size={10} /> {work.dept}
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px]">
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">
+                      {work.dept}
                     </span>
-                    <span className="font-bold text-orange-600 dark:text-orange-400">
+                    <span className="font-semibold text-amber-700 dark:text-amber-400">
                       {work.impactLevel}
                     </span>
                   </div>

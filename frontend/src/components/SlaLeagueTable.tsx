@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Trophy, AlertTriangle, TrendingUp, Building2 } from 'lucide-react';
 
 interface DepartmentScore {
   departmentName: string;
@@ -19,8 +18,7 @@ const MOCK_SCORECARD: DepartmentScore[] = [
 const SLA_BREACH_THRESHOLD_DAYS = 14;
 
 function getRank(idx: number) {
-  const medals = ['🥇', '🥈', '🥉'];
-  return medals[idx] ?? `#${idx + 1}`;
+  return `#${idx + 1}`;
 }
 
 function DelayBadge({ days }: { days: number }) {
@@ -33,7 +31,6 @@ function DelayBadge({ days }: { days: number }) {
           : 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
       }`}
     >
-      {isSevere && <AlertTriangle size={11} />}
       {days.toFixed(1)} days {isSevere ? '— Severe Breach' : '— Within SLA'}
     </span>
   );
@@ -75,7 +72,6 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
       <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-t-lg">
         <div>
           <h2 className="font-bold text-lg text-indigo-900 dark:text-indigo-300 flex items-center gap-2">
-            <Trophy size={20} className="text-yellow-500" />
             Department SLA League Table
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -85,7 +81,6 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
         <div className="flex items-center gap-2 flex-shrink-0">
           {severeCount > 0 && (
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 text-xs font-black">
-              <AlertTriangle size={13} />
               {severeCount} Severe Breach{severeCount > 1 ? 'es' : ''}
             </span>
           )}
@@ -104,16 +99,8 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
             <thead className="text-xs uppercase bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700">
               <tr>
                 <th className="px-4 py-3 w-10 text-center">Rank</th>
-                <th className="px-6 py-3">
-                  <span className="flex items-center gap-1.5">
-                    <Building2 size={13} /> Department
-                  </span>
-                </th>
-                <th className="px-6 py-3">
-                  <span className="flex items-center gap-1.5">
-                    <TrendingUp size={13} /> Avg Restoration Delay
-                  </span>
-                </th>
+                <th className="px-6 py-3">Department</th>
+                <th className="px-6 py-3">Avg Restoration Delay</th>
                 <th className="px-6 py-3 text-center">Conflicts Caused</th>
                 <th className="px-6 py-3 text-center">SLA Status</th>
               </tr>
@@ -167,11 +154,11 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
                     <td className="px-6 py-4 text-center">
                       {isSevere ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-red-600 text-white shadow-sm">
-                          <AlertTriangle size={11} /> BREACH
+                          BREACH
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
-                          ✓ Compliant
+                          Compliant
                         </span>
                       )}
                     </td>

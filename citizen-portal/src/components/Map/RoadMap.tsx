@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { PAN_INDIA_WORKS, type RoadWork } from '../../data/mockWorks';
-import { MapPin, Calendar, Clock, Building, AlertTriangle, Layers, CheckCircle2, TrendingDown } from 'lucide-react';
 import axios from 'axios';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 import HotspotLayer, { type ClusterPoint } from './HotspotLayer';
@@ -166,7 +165,6 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
           <div className="p-6 space-y-5 overflow-y-auto flex-grow hide-scrollbar">
             <div>
               <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-bold mb-1">
-                <MapPin size={14} />
                 <span>{activeSelected.roadName}</span>
               </div>
               <h3 className="font-black text-xl text-gray-900 dark:text-white leading-tight mb-2">
@@ -183,22 +181,22 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
             
             <div className="grid grid-cols-2 gap-3 bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-700/60">
               <div>
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1 flex items-center gap-1">
-                  <Layers size={12} /> Work Type
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">
+                  Work Type
                 </p>
                 <p className="font-bold text-xs text-gray-800 dark:text-gray-200">{activeSelected.type}</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1 flex items-center gap-1">
-                  <Building size={12} /> Department
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">
+                  Department
                 </p>
                 <p className="font-bold text-xs text-blue-600 dark:text-blue-400">{activeSelected.dept}</p>
               </div>
             </div>
 
             <div className="bg-orange-50/80 dark:bg-orange-950/40 p-4 rounded-2xl border border-orange-200/60 dark:border-orange-900/50">
-              <p className="text-[11px] text-orange-700 dark:text-orange-400 uppercase font-bold tracking-wider mb-1 flex items-center gap-1">
-                <AlertTriangle size={13} /> Field Specification & Impact
+              <p className="text-[11px] text-orange-700 dark:text-orange-400 uppercase font-bold tracking-wider mb-1">
+                Field Specification & Impact
               </p>
               <p className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed mb-2 font-medium">{activeSelected.details}</p>
               <div className="text-[11px] font-bold text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/60 px-2.5 py-1 rounded-lg inline-block">
@@ -208,19 +206,19 @@ export default function RoadMap({ searchCoords, selectedRoad, onSelectRoad, filt
 
             <div className="bg-blue-50/60 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/40 space-y-2 text-xs">
               <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-                <span className="flex items-center gap-1 text-[11px] text-gray-400 font-semibold"><Calendar size={12} /> Started</span>
+                <span className="text-[11px] text-gray-400 font-semibold">Started</span>
                 <span className="font-bold">{activeSelected.startDate}</span>
               </div>
               <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-                <span className="flex items-center gap-1 text-[11px] text-gray-400 font-semibold"><Clock size={12} /> Target Finish</span>
+                <span className="text-[11px] text-gray-400 font-semibold">Target Finish</span>
                 <span className="font-bold text-green-600 dark:text-green-400">{activeSelected.completionDate}</span>
               </div>
             </div>
             
             <div className="pt-2">
               <div className="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center">
-                <div className="flex items-center justify-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
-                  <CheckCircle2 size={14} /> Synchronized with City Digging Logs
+                <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
+                  Synchronized with City Digging Logs
                 </div>
                 <p className="text-[10px] text-gray-400">Zero duplicate excavation guaranteed by UIMS spatial lock.</p>
               </div>
@@ -275,8 +273,8 @@ function TrafficSparkline({ roadId }: { roadId: string }) {
 
   return (
     <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-gray-100 dark:border-slate-700/60 mt-4">
-      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
-        <TrendingDown size={12} className="text-red-500" /> 24h Traffic Forecast
+      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-2">
+        24h Traffic Forecast
       </p>
       <div className="h-12 w-full">
         <ResponsiveContainer width="100%" height="100%">
