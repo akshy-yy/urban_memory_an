@@ -112,7 +112,8 @@ async def classify_road_image(file: UploadFile = File(...)):
         return response_data
         
     except Exception as e:
-        print(f"Error calling Gemini API: {e}")
+        import logging
+        logging.getLogger(__name__).error("Error calling Gemini API: %s", e)
         raise HTTPException(status_code=500, detail="An error occurred while processing the image.")
 
 @app.post("/cluster-complaints")

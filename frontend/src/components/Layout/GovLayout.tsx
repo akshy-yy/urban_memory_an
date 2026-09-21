@@ -46,8 +46,8 @@ export default function GovLayout() {
         bc = new BroadcastChannel('uims_complaints_channel');
         bc.onmessage = () => fetchComplaints();
       }
-    } catch (e) {
-      console.warn('BroadcastChannel error in GovLayout', e);
+    } catch {
+      // BroadcastChannel not supported — silently continue
     }
 
     const interval = setInterval(fetchComplaints, 3000);

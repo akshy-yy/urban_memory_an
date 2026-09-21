@@ -1,18 +1,25 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+// ── Matches the backend DepartmentSlaDto exactly ────────────────────────────
 interface DepartmentScore {
-  departmentName: string;
+  id?: number;
+  /** Comes from DepartmentSlaDto.name (set by AdminService) */
+  name: string;
+  description?: string;
   avgRestorationDelayDays: number;
-  totalConflicts: number;
+  /** Comes from DepartmentSlaDto.totalConflictsCaused */
+  totalConflictsCaused: number;
+  slaBreachCount?: number;
 }
 
+// ── Rich demo data aligned with the backend DTO field names ─────────────────
 const MOCK_SCORECARD: DepartmentScore[] = [
-  { departmentName: 'BWSSB – Water Board',       avgRestorationDelayDays: 6.2,  totalConflicts: 2 },
-  { departmentName: 'BESCOM – Electricity',       avgRestorationDelayDays: 9.8,  totalConflicts: 4 },
-  { departmentName: 'BBMP – Roads & Infra',        avgRestorationDelayDays: 18.5, totalConflicts: 7 },
-  { departmentName: 'BMRCL – Metro Rail',          avgRestorationDelayDays: 4.1,  totalConflicts: 1 },
-  { departmentName: 'GAIL – Gas Authority',        avgRestorationDelayDays: 22.0, totalConflicts: 5 },
+  { name: 'BMRCL – Metro Rail',    avgRestorationDelayDays: 4.1,  totalConflictsCaused: 1, slaBreachCount: 0 },
+  { name: 'BWSSB – Water Board',   avgRestorationDelayDays: 6.2,  totalConflictsCaused: 2, slaBreachCount: 1 },
+  { name: 'BESCOM – Electricity',  avgRestorationDelayDays: 9.8,  totalConflictsCaused: 4, slaBreachCount: 2 },
+  { name: 'BBMP – Roads & Infra',  avgRestorationDelayDays: 18.5, totalConflictsCaused: 7, slaBreachCount: 5 },
+  { name: 'GAIL – Gas Authority',  avgRestorationDelayDays: 22.0, totalConflictsCaused: 5, slaBreachCount: 4 },
 ];
 
 const SLA_BREACH_THRESHOLD_DAYS = 14;
@@ -42,20 +49,26 @@ interface SlaLeagueTableProps {
 
 export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
   const [scorecard, setScorecard] = useState<DepartmentScore[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(false);
 
   useEffect(() => {
     const load = async () => {
+      setError(false);
       try {
-        const res = await axios.get('http://localhost:8080/api/admin/scorecard', {
+        // Correct endpoint: /api/admin/league-table
+        const res = await axios.get('http://localhost:8080/api/admin/league-table', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data: DepartmentScore[] = Array.isArray(res.data) && res.data.length > 0
+        // Backend already sorts ascending; use live data if populated, else fall back to demo.
+        const live: DepartmentScore[] = Array.isArray(res.data) && res.data.length > 0
           ? res.data
           : MOCK_SCORECARD;
-        setScorecard(data.slice().sort((a, b) => a.avgRestorationDelayDays - b.avgRestorationDelayDays));
+        setScorecard(live.slice().sort((a, b) => a.avgRestorationDelayDays - b.avgRestorationDelayDays));
       } catch {
-        // Endpoint not yet implemented — use demo data
+        // Backend offline — show demo data with a subtle indicator so the
+        // presenter is never met with a blank table.
+        setError(true);
         setScorecard(MOCK_SCORECARD.slice().sort((a, b) => a.avgRestorationDelayDays - b.avgRestorationDelayDays));
       } finally {
         setLoading(false);
@@ -79,6 +92,11 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          {error && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
+              Demo Data
+            </span>
+          )}
           {severeCount > 0 && (
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 text-xs font-black">
               {severeCount} Severe Breach{severeCount > 1 ? 'es' : ''}
@@ -110,7 +128,7 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
                 const isSevere = dept.avgRestorationDelayDays > SLA_BREACH_THRESHOLD_DAYS;
                 return (
                   <tr
-                    key={dept.departmentName}
+                    key={dept.name}
                     className={`transition-colors ${
                       isSevere
                         ? 'bg-red-50/60 dark:bg-red-950/20 hover:bg-red-100/80 dark:hover:bg-red-950/40'
@@ -122,14 +140,17 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
                       <span className="text-base font-black">{getRank(idx)}</span>
                     </td>
 
-                    {/* Department Name */}
+                    {/* Department Name — uses dept.name matching DepartmentSlaDto.name */}
                     <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">
                       <div className="flex items-center gap-2">
                         {isSevere && (
                           <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 animate-pulse" />
                         )}
-                        {dept.departmentName}
+                        {dept.name}
                       </div>
+                      {dept.description && (
+                        <p className="text-[11px] text-gray-400 dark:text-gray-500 font-normal mt-0.5">{dept.description}</p>
+                      )}
                     </td>
 
                     {/* Avg Delay */}
@@ -137,16 +158,16 @@ export default function SlaLeagueTable({ token }: SlaLeagueTableProps) {
                       <DelayBadge days={dept.avgRestorationDelayDays} />
                     </td>
 
-                    {/* Conflicts */}
+                    {/* Conflicts — uses totalConflictsCaused matching DepartmentSlaDto.totalConflictsCaused */}
                     <td className="px-6 py-4 text-center">
                       <span
                         className={`inline-block px-2.5 py-1 rounded-full text-xs font-black ${
-                          dept.totalConflicts >= 5
+                          dept.totalConflictsCaused >= 5
                             ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300'
                             : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300'
                         }`}
                       >
-                        {dept.totalConflicts}
+                        {dept.totalConflictsCaused}
                       </span>
                     </td>
 
